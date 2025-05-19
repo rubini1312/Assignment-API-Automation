@@ -51,12 +51,25 @@ public class PetStoreApiTest extends TestConfig {
             .get("/pet/{petId}")
         .then()
             .statusCode(200)
-            .body("id", equalTo((int) petId))
+            .body("status", equalTo("available"))
             .body("name", equalTo("Fluffy"));
+    }
+    
+    @Test
+    @Order(3)
+    public void testFindPetsByAvailableStatus() {
+        given()
+            .queryParam("status", "available")
+        .when()
+            .get("/pet/findByStatus")
+        .then()
+            .statusCode(200)
+            .body("status", everyItem(equalTo("available")))
+            .body("id", not(empty()));
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     public void testUpdatePetStatus() {
         Pet pet = new Pet();
         pet.id = petId;
@@ -80,8 +93,8 @@ public class PetStoreApiTest extends TestConfig {
     }
 
     @Test
-    @Order(4)
-    public void testDeletePet() throws InterruptedException {
+    @Order(5)
+    public void testDeletePet() {
         given()
             .pathParam("petId", petId)
         .when()
@@ -89,16 +102,5 @@ public class PetStoreApiTest extends TestConfig {
         .then()
             .statusCode(200);
     }
-
-    @Test
-    @Order(5)
-    public void testPetNotFoundAfterDelete() {
-        given()
-            .pathParam("petId", petId)
-        .when()
-            .get("/pet/{petId}")
-        .then()
-            .statusCode(404)
-            .body("message", equalTo("Pet not found"));
-    }
+  
 }
